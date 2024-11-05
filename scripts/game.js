@@ -1,3 +1,11 @@
+import {
+  drawBullets,
+  drawEnemies,
+  drawScore,
+  drawLives,
+  drawPlayer,
+} from "./draw.js";
+
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
@@ -7,6 +15,7 @@ canvas.height = 600;
 const player = {
   x: canvas.width / 2,
   y: canvas.height - 50,
+  lives: 3,
   width: 50,
   height: 50,
   speed: 10,
@@ -21,19 +30,34 @@ const bulletSpeed = 10;
 const enemySpeed = 1;
 const enemySpawnRate = 60;
 let frameCount = 0;
+let paused = false;
 
 const keys = {};
 document.addEventListener("keydown", (e) => (keys[e.key] = true));
 document.addEventListener("keyup", (e) => (keys[e.key] = false));
 
-function drawPlayer() {
-  ctx.fillStyle = player.color;
-  ctx.beginPath();
-  ctx.moveTo(player.x, player.y + player.height);
-  ctx.lineTo(player.x + player.width / 2, player.y);
-  ctx.lineTo(player.x + player.width, player.y + player.height);
-  ctx.closePath();
-  ctx.fill();
+document.addEventListener("keydown", (e) => {
+  if (e.key === "p" || e.key === "P") {
+    paused = !paused;
+  }
+});
+
+function checkPlayerCollisions() {
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    if (
+      player.x < enemies[i].x + enemies[i].width &&
+      player.x + player.width > enemies[i].x &&
+      player.y < enemies[i].y + enemies[i].height &&
+      player.y + player.height > enemies[i].y
+    ) {
+      enemies.splice(i, 1); // Remove the enemy
+      player.lives -= 1; // Decrease player lives
+      if (player.lives <= 0) {
+        alert("Looser! Game Over!");
+        document.location.reload();
+      }
+    }
+  }
 }
 
 function createBullet() {
@@ -56,31 +80,6 @@ function createEnemy() {
   });
 }
 
-function drawBullets() {
-  bullets.forEach((bullet) => {
-    ctx.fillStyle = bullet.color;
-    ctx.fillRect(
-      bullet.x - bullet.width / 2,
-      bullet.y,
-      bullet.width,
-      bullet.height
-    );
-  });
-}
-
-function drawEnemies() {
-  enemies.forEach((enemy) => {
-    ctx.fillStyle = enemy.color;
-    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-  });
-}
-
-function drawScore() {
-  ctx.fillStyle = "#000000";
-  ctx.font = "20px Arial";
-  ctx.fillText(`Score: ${score}`, 10, 30);
-}
-
 function checkCollisions() {
   for (let i = enemies.length - 1; i >= 0; i--) {
     for (let j = bullets.length - 1; j >= 0; j--) {
@@ -101,9 +100,13 @@ function checkCollisions() {
 
 function update() {
   // Player movement
+  if (keys["ArrowDown"] && player.y < canvas.height - player.height)
+    player.y += player.speed;
+  if (keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
   if (keys["ArrowLeft"] && player.x > 0) player.x -= player.speed;
   if (keys["ArrowRight"] && player.x < canvas.width - player.width)
     player.x += player.speed;
+
   if (keys[" "]) {
     if (frameCount % 10 === 0) createBullet();
   }
@@ -128,15 +131,30 @@ function update() {
 
 function render() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawPlayer();
-  drawBullets();
-  drawEnemies();
-  drawScore();
+  drawPlayer(ctx, player);
+  drawBullets(ctx, bullets);
+  drawEnemies(ctx, enemies);
+  drawScore(ctx, score);
+  drawLives(ctx, canvas, player);
+  if (paused) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "48px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Paused", canvas.width / 2, canvas.height / 2);
+  }
 }
 
 function gameLoop() {
-  update();
-  render();
+  if (!paused) {
+    update();
+    checkPlayerCollisions();
+    render();
+  } else {
+    // Render only the paused overlay if the game is paused
+    render();
+  }
   requestAnimationFrame(gameLoop);
 }
 

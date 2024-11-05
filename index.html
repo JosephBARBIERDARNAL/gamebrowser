@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Space Shooter</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div class="instructions">
+      <h2>Controls</h2>
+      <p><span class="highlight">Arrow keys</span> (left/right) to move</p>
+      <p><span class="highlight">Space</span> to shoot</p>
+      <p><span class="highlight">P</span> to pause</p>
+    </div>
     <canvas id="gameCanvas"></canvas>
-    <script src="game.js"></script>
+    <script type="module" src="./scripts/game.js"></script>
   </body>
 </html>
