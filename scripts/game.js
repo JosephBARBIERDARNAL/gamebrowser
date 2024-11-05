@@ -29,8 +29,12 @@ let score = 0;
 const bulletSpeed = 10;
 const enemySpeed = 1;
 const enemySpawnRate = 60;
+
 let frameCount = 0;
 let paused = false;
+
+let fadingOut = false;
+let fadeOpacity = 0;
 
 const keys = {};
 document.addEventListener("keydown", (e) => (keys[e.key] = true));
@@ -50,14 +54,25 @@ function checkPlayerCollisions() {
       player.y < enemies[i].y + enemies[i].height &&
       player.y + player.height > enemies[i].y
     ) {
-      enemies.splice(i, 1); // Remove the enemy
-      player.lives -= 1; // Decrease player lives
+      enemies.splice(i, 1);
+      player.lives -= 1;
       if (player.lives <= 0) {
-        alert("Looser! Game Over!");
-        document.location.reload();
+        startFadeOut();
       }
     }
   }
+}
+
+function startFadeOut() {
+  fadingOut = true;
+  const fadeInterval = setInterval(() => {
+    if (fadeOpacity < 1) {
+      fadeOpacity += 0.05;
+    } else {
+      clearInterval(fadeInterval);
+      document.location.reload();
+    }
+  }, 20);
 }
 
 function createBullet() {
@@ -143,6 +158,11 @@ function render() {
     ctx.font = "48px Arial";
     ctx.textAlign = "center";
     ctx.fillText("Paused", canvas.width / 2, canvas.height / 2);
+  }
+
+  if (fadingOut) {
+    ctx.fillStyle = `rgba(0, 0, 0, ${fadeOpacity})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 }
 
