@@ -1,0 +1,16 @@
+/* Centering the canvas in the middle of the screen */
+canvas {
+  border: 1px solid #000;
+  background: #ffffff;
+  display: block;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center; /* Horizontal centering */
+  align-items: center; /* Vertical centering */
+  background: #ebe9e9;
+  min-height: 100vh; /* Full viewport height */
+  padding: 10px;
+}
