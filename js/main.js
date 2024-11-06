@@ -6,7 +6,8 @@ import {
   drawPlayer,
   drawExplosions,
 } from "./draw.js";
-import { updateExplosions, createExplosion } from "./particle.js";
+import { updateExplosions, createExplosion } from "./explosion.js";
+import { bulletSpeed, enemySpawnRate, enemySpeed } from "./settings.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -14,7 +15,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = 1000;
 canvas.height = 600;
 
-const player = {
+export const player = {
   x: canvas.width / 2,
   y: canvas.height - 50,
   lives: 10,
@@ -27,10 +28,6 @@ const bullets = [];
 const enemies = [];
 const explosions = [];
 let score = 0;
-
-const bulletSpeed = 10;
-const enemySpeed = 1;
-const enemySpawnRate = 60;
 
 let frameCount = 0;
 let paused = false;
@@ -125,7 +122,7 @@ function checkCollisions() {
   }
 }
 
-function update() {
+function update(player, bulletSpeed, enemySpawnRate, enemySpeed) {
   if (keys["ArrowDown"] && player.y < canvas.height - player.height)
     player.y += player.speed;
   if (keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
@@ -182,7 +179,7 @@ function render() {
 
 function gameLoop() {
   if (!paused) {
-    update();
+    update(player, bulletSpeed, enemySpawnRate, enemySpeed);
     checkPlayerCollisions();
     render();
   } else {
