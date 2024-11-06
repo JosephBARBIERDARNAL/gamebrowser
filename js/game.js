@@ -4,7 +4,9 @@ import {
   drawScore,
   drawLives,
   drawPlayer,
+  drawExplosions,
 } from "./draw.js";
+import { updateExplosions, createExplosion } from "./particle.js";
 
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -15,15 +17,15 @@ canvas.height = 600;
 const player = {
   x: canvas.width / 2,
   y: canvas.height - 50,
-  lives: 3,
+  lives: 10,
   width: 50,
   height: 50,
-  speed: 10,
-  color: "#00ff00",
+  speed: 6,
 };
 
 const bullets = [];
 const enemies = [];
+const explosions = [];
 let score = 0;
 
 const bulletSpeed = 10;
@@ -54,6 +56,11 @@ function checkPlayerCollisions() {
       player.y < enemies[i].y + enemies[i].height &&
       player.y + player.height > enemies[i].y
     ) {
+      createExplosion(
+        explosions,
+        enemies[i].x + enemies[i].width / 2,
+        enemies[i].y + enemies[i].height / 2
+      );
       enemies.splice(i, 1);
       player.lives -= 1;
       if (player.lives <= 0) {
@@ -104,6 +111,11 @@ function checkCollisions() {
         bullets[j].y < enemies[i].y + enemies[i].height &&
         bullets[j].y + bullets[j].height > enemies[i].y
       ) {
+        createExplosion(
+          explosions,
+          enemies[i].x + enemies[i].width / 2,
+          enemies[i].y + enemies[i].height / 2
+        );
         enemies.splice(i, 1);
         bullets.splice(j, 1);
         score += 10;
@@ -114,7 +126,6 @@ function checkCollisions() {
 }
 
 function update() {
-  // Player movement
   if (keys["ArrowDown"] && player.y < canvas.height - player.height)
     player.y += player.speed;
   if (keys["ArrowUp"] && player.y > 0) player.y -= player.speed;
@@ -140,6 +151,7 @@ function update() {
     createEnemy();
   }
 
+  updateExplosions(explosions);
   checkCollisions();
   frameCount++;
 }
@@ -149,8 +161,10 @@ function render() {
   drawPlayer(ctx, player);
   drawBullets(ctx, bullets);
   drawEnemies(ctx, enemies);
+  drawExplosions(ctx, explosions);
   drawScore(ctx, score);
   drawLives(ctx, canvas, player);
+
   if (paused) {
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -172,7 +186,6 @@ function gameLoop() {
     checkPlayerCollisions();
     render();
   } else {
-    // Render only the paused overlay if the game is paused
     render();
   }
   requestAnimationFrame(gameLoop);

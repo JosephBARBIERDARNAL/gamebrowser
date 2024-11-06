@@ -21,6 +21,7 @@ export function drawEnemies(ctx, enemies) {
 }
 
 export function drawScore(ctx, score) {
+  ctx.textAlign = "start";
   ctx.fillStyle = "#000000";
   ctx.font = "20px Arial";
   ctx.fillText(`Score: ${score}`, 10, 30);
@@ -32,9 +33,9 @@ export function drawPlayer(ctx, player) {
 
     ctx.beginPath();
     ctx.arc(
-      player.x + player.width / 2, // center x
-      player.y + player.height / 2, // center y
-      player.width / 2, // radius (half width for circle)
+      player.x + player.width / 2,
+      player.y + player.height / 2,
+      player.width / 2,
       0,
       Math.PI * 2
     );
@@ -49,8 +50,8 @@ export function drawPlayer(ctx, player) {
       player.height
     );
 
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = "#FFD700"; // Example border color
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = "#000000";
     ctx.stroke();
 
     ctx.shadowColor = "rgba(0, 0, 0, 0.5)";
@@ -64,7 +65,12 @@ export function drawPlayer(ctx, player) {
 }
 
 export function drawLives(ctx, canvas, player) {
+  ctx.textAlign = "start";
   ctx.fillStyle = "#000000";
   ctx.font = "20px Arial";
   ctx.fillText(`Lives: ${player.lives}`, canvas.width - 100, 30);
+}
+
+export function drawExplosions(ctx, explosions) {
+  explosions.forEach((particle) => particle.draw(ctx));
 }
